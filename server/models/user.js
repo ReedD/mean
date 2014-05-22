@@ -21,9 +21,9 @@ var validatePassword = function (hashed_password) {
     if (!valid) {
         this.invalidate('password', 'Password cannot be blank');
     }
-    if (this._password || this._confirmPassword) {
-        if (this._password !== this._confirmPassword) {
-            this.invalidate('confirmPassword', 'Passwords do not match');
+    if (this._password || this._confirm_password) {
+        if (this._password !== this._confirm_password) {
+            this.invalidate('confirm_password', 'Passwords do not match');
         }
     }
     return valid;
@@ -56,6 +56,9 @@ var UserSchema = new Schema({
         type: String,
         validate: [validatePassword, 'Password cannot be blank']
     },
+    password_token: {
+        type: String
+    },
     provider: {
         type: String,
         default: 'local'
@@ -87,10 +90,10 @@ UserSchema.virtual('password').set(function(password) {
     return this._password;
 });
 
-UserSchema.virtual('confirmPassword').set(function(value) {
-    this._confirmPassword = value;
+UserSchema.virtual('confirm_password').set(function(value) {
+    this._confirm_password = value;
 }).get(function() {
-    return this._confirmPassword;
+    return this._confirm_password;
 });
 
 /**
