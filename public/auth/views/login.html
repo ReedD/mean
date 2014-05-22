@@ -1,5 +1,5 @@
-<div data-ng-controller="LoginCtrl">
-    <div class="alert alert-danger animated fadeIn" ng-show="loginerror">{{loginerror}}</div>
+<div data-ng-controller="AuthController">
+    <div class="alert alert-danger animated fadeIn" ng-show="errors.message">{{errors.message}}</div>
     <h1>Sign in</h1>
     <form  ng-submit="login()" class="signin form-horizontal">
         <div class="form-group">

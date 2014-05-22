@@ -1,9 +1,9 @@
 'use strict';
 
 (function() {
-    // Login Controller Spec
+    // AuthController Spec
     describe('MEAN controllers', function() {
-        describe('LoginCtrl', function() {
+        describe('AuthController', function() {
             beforeEach(function() {
                 this.addMatchers({
                     toEqualData: function(expected) {
@@ -14,25 +14,33 @@
 
             beforeEach(module('mean'));
 
-            var LoginCtrl,
-                scope,
-                $rootScope,
+            var AuthController,
                 $httpBackend,
-                $location;
+                $location,
+                $rootScope,
+                Auth,
+                Global,
+                scope;
 
-            beforeEach(inject(function($controller, _$rootScope_, _$location_, _$httpBackend_) {
+            beforeEach(inject(function($injector) {
 
-                scope = _$rootScope_.$new();
-                $rootScope = _$rootScope_;
+                $httpBackend = $injector.get('$httpBackend');
+                $location = $injector.get('$location');
+                $rootScope = $injector.get('$rootScope');
+                Global = $injector.get('Global');
+                Auth = $injector.get('Auth');
+                scope = $rootScope.$new();
+                var $templateCache = $injector.get('$templateCache');
+                var $controller = $injector.get('$controller');
+                var authService = $injector.get('authService');
 
-                LoginCtrl = $controller('LoginCtrl', {
+                $templateCache.put('public/system/views/index.html', '');
+
+                AuthController = $controller('AuthController', {
                     $scope: scope,
-                    $rootScope: _$rootScope_
+                    Auth: Auth,
+                    authService: authService
                 });
-
-                $httpBackend = _$httpBackend_;
-
-                $location = _$location_;
 
             }));
 
@@ -42,104 +50,79 @@
             });
 
             it('should login with a correct user and password', function() {
+                // fixture expected response data
+                var responseLoginData = function() {
+                    return {
+                        _id: '525cf20451979dea2c000001',
+                        email: 'test@example.com',
+                        roles: ['authenticated']
+                    };
+                };
 
-                spyOn($rootScope, '$emit');
-                // test expected GET request
-                $httpBackend.when('POST','/login').respond(200, {user: 'Fred'});
+                scope.user = {
+                    email: 'test@example.com',
+                    password: 'password'
+                };
+
+                $httpBackend.when('POST','/login').respond(200, responseLoginData());
                 scope.login();
                 $httpBackend.flush();
-                // test scope value
-                expect($rootScope.user).toEqual('Fred');
-                expect($rootScope.$emit).toHaveBeenCalledWith('loggedin');
+
+                expect(Global.user).toEqualData(responseLoginData());
                 expect($location.url()).toEqual('/');
             });
 
-
-
             it('should fail to log in ', function() {
-                $httpBackend.expectPOST('/login').respond(400, 'Authentication failed');
+                $httpBackend.expectPOST('/login').respond(400, {
+                    message: 'Authentication failed.'
+                });
                 scope.login();
                 $httpBackend.flush();
                 // test scope value
-                expect(scope.loginerror).toEqual('Authentication failed.');
+                expect(scope.errors.message).toEqual('Authentication failed.');
 
-            });
-        });
-
-        describe('RegisterCtrl', function() {
-            beforeEach(function() {
-                this.addMatchers({
-                    toEqualData: function(expected) {
-                        return angular.equals(this.actual, expected);
-                    }
-                });
-            });
-
-            beforeEach(module('mean'));
-
-            var RegisterCtrl,
-                scope,
-                $rootScope,
-                $httpBackend,
-                $location;
-
-            beforeEach(inject(function($controller, _$rootScope_, _$location_, _$httpBackend_) {
-
-                scope = _$rootScope_.$new();
-                $rootScope = _$rootScope_;
-
-                RegisterCtrl = $controller('RegisterCtrl', {
-                    $scope: scope,
-                    $rootScope: _$rootScope_
-                });
-
-                $httpBackend = _$httpBackend_;
-
-                $location = _$location_;
-
-            }));
-
-            afterEach(function() {
-                $httpBackend.verifyNoOutstandingExpectation();
-                $httpBackend.verifyNoOutstandingRequest();
             });
 
             it('should register with correct data', function() {
 
-                spyOn($rootScope, '$emit');
-                // test expected GET request
-                scope.user.name = 'Fred';
-                $httpBackend.when('POST','/register').respond(200, 'Fred');
+                // fixture expected response data
+                var responseRegisterData = function() {
+                    return {
+                        _id: '525cf20451979dea2c000001',
+                        email: 'test@example.com',
+                        roles: ['authenticated']
+                    };
+                };
+
+                scope.user = new Auth({
+                    email: 'test@example.com',
+                    password: 'password'
+                });
+
+                $httpBackend.when('POST','/register').respond(200, responseRegisterData());
                 scope.register();
                 $httpBackend.flush();
-                // test scope value
-                expect($rootScope.user.name).toBe('Fred');
-                expect(scope.registerError).toEqual(0);
-                expect($rootScope.$emit).toHaveBeenCalledWith('loggedin');
-                expect($location.url()).toBe('/');
+
+                expect(Global.user).toEqualData(responseRegisterData());
+                expect($location.url()).toEqual('/');
             });
 
+            it('should fail to register with validation errors', function() {
 
-
-            it('should fail to register with duplicate Username', function() {
-                $httpBackend.when('POST','/register').respond(400, 'Username already taken');
+                $httpBackend.expectPOST('/register').respond(400, {
+                    message: 'Registration failed.',
+                    errors: {
+                        username: {message: 'Username already taken'},
+                        password: {message: 'Passwords do not match'}
+                    }
+                });
                 scope.register();
                 $httpBackend.flush();
                 // test scope value
-                expect(scope.usernameError).toBe('Username already taken');
-                expect(scope.registerError).toBe(null);
-            });
-
-            it('should fail to register with non-matching passwords', function() {
-                $httpBackend.when('POST','/register').respond(400, 'Password mismatch');
-                scope.register();
-                $httpBackend.flush();
-                // test scope value
-                expect(scope.usernameError).toBe(null);
-                expect(scope.registerError).toBe('Password mismatch');
+                expect(scope.errors.message).toEqual('Registration failed.');
+                expect(scope.errors.username.message).toBe('Username already taken');
+                expect(scope.errors.password.message).toBe('Passwords do not match');
             });
         });
     });
-
-
 }());

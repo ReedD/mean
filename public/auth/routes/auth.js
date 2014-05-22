@@ -1,43 +1,66 @@
 'use strict';
 
-//Setting up route
-angular.module('mean.auth').config(['$stateProvider',
-    function($stateProvider) {
-        // Check if the user is not conntected
-        var checkLoggedOut = function($q, $timeout, $http, $location) {
-            // Initialize a new promise
-            var deferred = $q.defer();
+//Setting up auth routes
+angular.module('mean.auth')
+    .config(['$stateProvider',
+        function($stateProvider) {
+            // Check if the user is not conntected
+            var checkLoggedOut = function($state, Auth) {
+                return Auth.loggedOut();
+            };
+            // States for authorization
+            $stateProvider
+                .state('auth.login', {
+                    url: '/login',
+                    templateUrl: 'public/auth/views/login.html',
+                    resolve: {
+                        loggedin: checkLoggedOut
+                    }
+                })
+                .state('auth.register', {
+                    url: '/register',
+                    templateUrl: 'public/auth/views/register.html',
+                    resolve: {
+                        loggedin: checkLoggedOut
+                    }
+                });
+        }
+    ])
+    .run([
+        '$rootScope',
+        '$state',
+        '$location',
+        'Global',
+        function ($rootScope, $state, $location, Global) {
+            var ignorePaths = ['register', 'login'];
+            var currentLocation = '/';
 
-            // Make an AJAX call to check if the user is logged in
-            $http.get('/loggedin').success(function(user) {
-                // Authenticated
-                if (user !== '0') {
-                    $timeout(deferred.reject);
-                    $location.url('/login');
+            /**
+             * Saves the current location but ignores
+             * the slugs defined in ignore paths and defaults
+             * to the root of our app
+             * @return void
+             */
+            function getLocation () {
+                currentLocation = $location.path();
+                var path = window.location.hash.split('#!/')[1];
+                if (ignorePaths.indexOf(path) !== -1) {
+                    currentLocation = '/';
                 }
+            }
 
-                // Not Authenticated
-                else $timeout(deferred.resolve);
+            $rootScope.$on('event:auth-loginRequired', function() {
+                // Remember current location so that we can
+                // redirect the user back after they login
+                getLocation();
+                $state.go('auth.login');
+            });
+            $rootScope.$on('event:auth-loginConfirmed', function() {
+                // Redirect back to the location we previously remembered
+                $location.path(currentLocation);
             });
 
-            return deferred.promise;
-        };
-
-        // states for my app
-        $stateProvider
-            .state('auth.login', {
-                url: '/login',
-                templateUrl: 'public/auth/views/login.html',
-                resolve: {
-                    loggedin: checkLoggedOut
-                }
-            })
-            .state('auth.register', {
-                url: '/register',
-                templateUrl: 'public/auth/views/register.html',
-                resolve: {
-                    loggedin: checkLoggedOut
-                }
-            });
-    }
-]);
+            // Init by saving current page
+            getLocation();
+        }]
+    );

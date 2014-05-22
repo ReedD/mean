@@ -24,13 +24,13 @@ angular.module('mean.system').controller('HeaderController', ['$scope', '$rootSc
 
         $scope.isCollapsed = false;
 
-        $rootScope.$on('loggedin', function() {
+        $rootScope.$on('event:auth-loginConfirmed', function(e, data) {
 
             queryMenu('main', defaultMainMenu);
 
             $scope.global = {
-                authenticated: !! $rootScope.user,
-                user: $rootScope.user
+                authenticated: !! data,
+                user: data
             };
         });
 

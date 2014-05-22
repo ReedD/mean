@@ -20,18 +20,23 @@ module.exports = function(app, passport) {
     // AngularJS route to check for authentication
     app.route('/loggedin')
         .get(function(req, res) {
-            res.send(req.isAuthenticated() ? req.user : '0');
+            res.send(
+                req.isAuthenticated() ? req.user : {},
+                req.isAuthenticated() ? 200 : 400);
         });
 
     // Setting the local strategy route
     app.route('/login')
-        .post(passport.authenticate('local', {
-            failureFlash: true
-        }), function(req, res) {
-            res.send({
-                user: req.user,
-                redirect: (req.user.roles.indexOf('admin') !== -1) ? req.get('referer') : false
-            });
+        .post(function(req, res, next) {
+            passport.authenticate('local', function(err, user, info) {
+                if (err) { return next(err); }
+                if (!user) {
+                    return res.send(info, 400);
+                }
+                req.logIn(user, function(err) {
+                    return res.redirect('/users/me');
+                });
+            })(req, res, next);
         });
 
     // Setting the facebook oauth routes

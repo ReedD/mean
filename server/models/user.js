@@ -5,6 +5,7 @@
  */
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
+    uniqueValidator = require('mongoose-unique-validator'),
     crypto = require('crypto');
 
 /**
@@ -15,18 +16,30 @@ var validatePresenceOf = function(value) {
     return (this.provider && this.provider !== 'local') || value.length;
 };
 
+var validatePassword = function (hashed_password) {
+    var valid = (this.provider && this.provider !== 'local') || hashed_password.length;
+    if (!valid) {
+        this.invalidate('password', 'Password cannot be blank');
+    }
+    if (this._password || this._confirmPassword) {
+        if (this._password !== this._confirmPassword) {
+            this.invalidate('confirmPassword', 'Passwords do not match');
+        }
+    }
+    return valid;
+};
+
 /**
  * User Schema
  */
 var UserSchema = new Schema({
     name: {
         type: String,
-        required: true,
         validate: [validatePresenceOf, 'Name cannot be blank']
     },
     email: {
         type: String,
-        required: true,
+        unique: true,
         match: [/.+\@.+\..+/, 'Please enter a valid email'],
         validate: [validatePresenceOf, 'Email cannot be blank']
     },
@@ -41,7 +54,7 @@ var UserSchema = new Schema({
     },
     hashed_password: {
         type: String,
-        validate: [validatePresenceOf, 'Password cannot be blank']
+        validate: [validatePassword, 'Password cannot be blank']
     },
     provider: {
         type: String,
@@ -56,6 +69,14 @@ var UserSchema = new Schema({
 });
 
 /**
+ * Plugins
+ * The default mongoose `unique` key doesn't use the same validation technique as the rest
+ * of the validation rules and creates incosistent validation handling. So we'll override
+ * that key and use this plugin to validate instead.
+ */
+UserSchema.plugin(uniqueValidator, { message: '{VALUE} is already registered.' });
+
+/**
  * Virtuals
  */
 UserSchema.virtual('password').set(function(password) {
@@ -64,6 +85,32 @@ UserSchema.virtual('password').set(function(password) {
     this.hashed_password = this.hashPassword(password);
 }).get(function() {
     return this._password;
+});
+
+UserSchema.virtual('confirmPassword').set(function(value) {
+    this._confirmPassword = value;
+}).get(function() {
+    return this._confirmPassword;
+});
+
+/**
+ * Pre-validate hook
+ */
+UserSchema.pre('validate', function(next) {
+    if (this.isNew) {
+        // Set these keys to trigger validation rules
+        // This metheod is used in place of setting the
+        // required key in the schema so that these keys
+        // are only required on create.
+        this.name     = this.name      || '';
+        this.username = this.username  || '';
+        this.email    = this.email     || '';
+        console.log(this);
+        if (!this.password) {
+            this.hashed_password = '';
+        }
+    }
+    next();
 });
 
 /**
@@ -91,7 +138,7 @@ UserSchema.methods = {
         var roles = this.roles;
         return roles.indexOf('admin') !== -1 || roles.indexOf(role) !== -1;
     },
-	
+
     /**
      * IsAdmin - check if the user is an administrator
      *
@@ -101,7 +148,7 @@ UserSchema.methods = {
     isAdmin: function() {
         return this.roles.indexOf('admin') !== -1;
     },
-	
+
     /**
      * Authenticate - check if the passwords are the same
      *

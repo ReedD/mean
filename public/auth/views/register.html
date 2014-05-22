@@ -1,39 +1,45 @@
-<div data-ng-controller="RegisterCtrl">
-    <div ng-repeat="error in registerError">
-        <div class="alert alert-danger animated fadeIn">{{error.msg}}</div>
-    </div>
-    <div class="alert alert-danger animated fadeIn" ng-show="usernameError">{{usernameError}}</div>
-
+<div data-ng-controller="AuthController">
+    <div class="alert alert-danger animated fadeIn" ng-show="errors.message">{{errors.message}}</div>
     <h1>Register</h1>
     <form ng-submit="register()" class="signup form-horizontal">
-        <div class="form-group">
-            <label for="name" class="col-md-4 control-label">Full Name</label>
+        <div class="form-group" ng-class="{'has-feedback has-error': errors.name}">
+            <label class="col-md-4 control-label" for="name">Full Name</label>
             <div class="col-md-8">
                 <input id="name" type="text" name="name" placeholder="Full name" class="form-control" ng-model="user.name"/>
+                <span class="glyphicon glyphicon-remove form-control-feedback" ng-show="errors.name"></span>
+                <span class="help-block" ng-show="errors.name">{{errors.name.message}}</span>
             </div>
         </div>
-        <div class="form-group">
-            <label for="email" class="col-md-4 control-label">Email</label>
+        <div class="form-group" ng-class="{'has-feedback has-error': errors.email}">
+            <label class="col-md-4 control-label" for="email">Email</label>
             <div class="col-md-8">
                 <input id="email" type="email" name="email" placeholder="Email" class="form-control" ng-model="user.email"/>
+                <span class="glyphicon glyphicon-remove form-control-feedback" ng-show="errors.email"></span>
+                <span class="help-block" ng-show="errors.email">{{errors.email.message}}</span>
             </div>
         </div>
-        <div class="form-group">
-            <label for="username" class="col-md-4 control-label">Username</label>
+        <div class="form-group" ng-class="{'has-feedback has-error': errors.username}">
+            <label class="col-md-4 control-label" for="username">Username</label>
             <div class="col-md-8">
                 <input id="username" type="text" name="username" placeholder="Username" class="form-control" ng-model="user.username"/>
+                <span class="glyphicon glyphicon-remove form-control-feedback" ng-show="errors.username"></span>
+                <span class="help-block" ng-show="errors.username">{{errors.username.message}}</span>
             </div>
         </div>
-        <div class="form-group">
-            <label for="password" class="col-md-4 control-label">Password</label>
+        <div class="form-group" ng-class="{'has-feedback has-error': errors.password}">
+            <label class="col-md-4 control-label" for="password">Password</label>
             <div class="col-md-8">
                 <input id="password" type="password" name="password" placeholder="Password" class="form-control" ng-model="user.password"/>
+                <span class="glyphicon glyphicon-remove form-control-feedback" ng-show="errors.password"></span>
+                <span class="help-block" ng-show="errors.password">{{errors.password.message}}</span>
             </div>
         </div>
-        <div class="form-group">
-            <label for="confirmPassword" class="col-md-4 control-label">Repeat Password</label>
+        <div class="form-group" ng-class="{'has-feedback has-error': errors.confirmPassword}">
+            <label class="col-md-4 control-label" for="password">Confirm Password</label>
             <div class="col-md-8">
                 <input id="confirmPassword" type="password" name="confirmPassword" placeholder="Password" class="form-control" ng-model="user.confirmPassword"/>
+                <span class="glyphicon glyphicon-remove form-control-feedback" ng-show="errors.confirmPassword"></span>
+                <span class="help-block" ng-show="errors.confirmPassword">{{errors.confirmPassword.message}}</span>
             </div>
         </div>
         <div class="form-group">

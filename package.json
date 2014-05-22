@@ -9,7 +9,8 @@
     { "name": "Yonatan Ellman", "mail": "yonatan@linnovate.net" },
     { "name": "Ehud Shahak", "mail": "ehud@linnovate.net" },
     { "name": "Amos Haviv", "mail": "mail@amoshaviv" },
-    { "name": "Drew Fyock", "mail": "drew@steelbisondev.com" }
+    { "name": "Drew Fyock", "mail": "drew@steelbisondev.com" },
+    { "name": "Reed Dadoune", "mail": "reed@dadoune.com" }
   ],
   "mean": "0.3.3",
   "repository": {
@@ -57,6 +58,7 @@
     "meanio": "0.4.x",
     "method-override": "^1.0.0",
     "mongoose": "^3.8.8",
+    "mongoose-unique-validator": "^0.3.0",
     "morgan": "^1.0.0",
     "passport": "^0.2.0",
     "passport-facebook": "^1.0.3",

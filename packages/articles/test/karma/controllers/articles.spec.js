@@ -30,13 +30,16 @@
             // The injector ignores leading and trailing underscores here (i.e. _$httpBackend_).
             // This allows us to inject a service but then attach it to a variable
             // with the same name as the service.
-            beforeEach(inject(function($controller, $rootScope, _$location_, _$stateParams_, _$httpBackend_) {
+            beforeEach(inject(function($controller, $rootScope, _$location_, _$stateParams_, _$httpBackend_, $templateCache) {
 
                 scope = $rootScope.$new();
 
                 ArticlesController = $controller('ArticlesController', {
                     $scope: scope
                 });
+
+                $templateCache.put('public/system/views/index.html', '');
+                $templateCache.put('articles/views/view.html', '');
 
                 $stateParams = _$stateParams_;
 
@@ -119,6 +122,7 @@
 
                     // test post request is sent
                     $httpBackend.expectPOST('articles', postArticleData()).respond(responseArticleData());
+                    $httpBackend.expectGET('/loggedin').respond(200);
 
                     // Run controller
                     scope.create();
@@ -159,6 +163,8 @@
                 EXPECTED: {"_id":"525a8422f6d0f87f0e407a33","title":"An Article about MEAN","to":"MEAN is great!"}
                 GOT:      {"_id":"525a8422f6d0f87f0e407a33","title":"An Article about MEAN","to":"MEAN is great!","updated":[1383534772975]}
                 */
+
+                $httpBackend.expectGET('/loggedin').respond(200);
 
                 // run controller
                 scope.update();
