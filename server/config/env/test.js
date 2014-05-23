@@ -4,7 +4,8 @@ module.exports = {
     db: 'mongodb://localhost/mean-test',
     port: 3001,
     app: {
-        name: 'MEAN - A Modern Stack - Test'
+        name: 'MEAN - A Modern Stack - Test',
+        email: 'no-reply@example.com'
     },
     facebook: {
         clientID: 'APP_ID',

@@ -4,7 +4,8 @@
 angular.module('mean.auth')
     .provider('Auth', function () {
         this.$get = ['$resource', '$q', '$timeout', function ($resource, $q, $timeout) {
-            var AuthMethods = $resource('/:action/', {}, {
+            var AuthMethods = $resource('/:action/:token',
+                { token: '@token' }, {
                 loggedIn: {
                     method: 'GET',
                     params: {action: 'loggedin'}
@@ -16,11 +17,24 @@ angular.module('mean.auth')
                 register: {
                     method: 'POST',
                     params: {action: 'register'}
+                },
+                forgotPassword: {
+                    method: 'POST',
+                    params: {action: 'forgot-password'}
+                },
+                resetPassword: {
+                    method: 'POST',
+                    params: {
+                        action: 'reset-password',
+                        token: '@password_token'
+                    }
                 }
             });
 
             function Auth(attributes) {
                 this.$register = new AuthMethods().$register;
+                this.$forgotPassword = new AuthMethods().$forgotPassword;
+                this.$resetPassword = new AuthMethods().$resetPassword;
             }
 
             /**

@@ -13,6 +13,10 @@ module.exports = function(app, passport) {
     // Setting up the users api
     app.route('/register')
         .post(users.create);
+    app.route('/forgot-password')
+        .post(users.forgotPassword);
+    app.route('/reset-password/:token')
+        .post(users.resetPassword);
 
     // Setting up the userId param
     app.param('userId', users.user);

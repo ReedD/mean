@@ -23,6 +23,20 @@ angular.module('mean.auth')
                     resolve: {
                         loggedin: checkLoggedOut
                     }
+                })
+                .state('auth.forgot-password', {
+                    url: '/forgot-password',
+                    templateUrl: 'public/auth/views/forgot-password.html',
+                    resolve: {
+                        loggedin: checkLoggedOut
+                    }
+                })
+                .state('auth.reset-password', {
+                    url: '/reset-password/:token',
+                    templateUrl: 'public/auth/views/reset-password.html',
+                    resolve: {
+                        loggedin: checkLoggedOut
+                    }
                 });
         }
     ])

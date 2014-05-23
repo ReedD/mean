@@ -3,7 +3,8 @@
 module.exports = {
     db: 'mongodb://localhost/mean-prod',
     app: {
-        name: 'MEAN - A Modern Stack - Production'
+        name: 'MEAN - A Modern Stack - Production',
+        email: 'no-reply@example.com'
     },
     facebook: {
         clientID: 'APP_ID',
