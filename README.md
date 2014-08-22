@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/linnovate/mean.png?branch=master)](https://travis-ci.org/linnovate/mean)
 [![Dependencies Status](https://david-dm.org/linnovate/mean.png)](https://david-dm.org/linnovate/mean)
 
-MEAN is a boilerplate that provides a nice starting point for [MongoDB](http://www.mongodb.org/), [Node.js](http://www.nodejs.org/), [Express](http://expressjs.com/), and [AngularJS](http://angularjs.org/) based applications. It is designed to give you a quick and organized way to start developing MEAN based web apps with useful modules like Mongoose and Passport pre-bundled and configured. We mainly try to take care of the connection points between existing popular frameworks and solve common integration problems.  
+MEAN is a boilerplate that provides a nice starting point for [MongoDB](http://www.mongodb.org/), [Node.js](http://www.nodejs.org/), [Express](http://expressjs.com/), and [AngularJS](http://angularjs.org/) based applications. It is designed to give you a quick and organized way to start developing MEAN based web apps with useful modules like Mongoose and Passport pre-bundled and configured. We mainly try to take care of the connection points between existing popular frameworks and solve common integration problems.
 
 ## Prerequisites
 * Node.js - Download and Install [Node.js](http://www.nodejs.org/download/). You can also follow [this gist](https://gist.github.com/isaacs/579814) for a quick and easy way to install Node.js and npm
@@ -105,20 +105,35 @@ $ npm update -g
 ````
 
 ## Configuration
-All configuration is specified in the [config](/config/) folder, particularly the [config.js](/config/config.js) file and the [env](config/env/) files. Here you will need to specify your application name, database name, and hook up any social app keys if you want integration with Twitter, Facebook, GitHub, or Google.
+All configuration is specified in the [config](/config/) folder, through the [env](config/env/) files, and is orchestrated through the [meanio](https://github.com/linnovate/mean-cli) NPM module. Here you will need to specify your application name, database name, and hook up any social app keys if you want integration with Twitter, Facebook, GitHub, or Google.
 
 ### Environmental Settings
+
+There is a shared environment config: __all__.
+* __root__ - This the default root path for the application.
+* __port__ - DEPRECATED to __http.port__ or __https.port__.
+* __http.port__ - This sets the default application port.
+* __https__ - These settings are for running HTTPS / SSL for a secure application.
+  * __port__ - This sets the default application port for HTTPS / SSL. If HTTPS is not used then is value is to be set to __false__ which is the default setting. If HTTPS is to be used the standard HTTPS port is __443__. 
+  * __ssl.key__ - The path to public key.
+  * __ssl.cert__ - The path to certificate.
 
 There are three environments provided by default: __development__, __test__, and __production__.
 
 Each of these environments has the following configuration options:
 
- * __db__ - This is the name of the MongoDB database to use, and is set by default to __mean-dev__ for the development environment.
+* __db__ - This is where you specify the MongoDB / Mongoose settings
+  * __url__ - This is the url/name of the MongoDB database to use, and is set by default to __mean-dev__ for the development environment.
+  * __debug__ - Setting this option to __true__ will log the output all Mongoose executed collection methods to your
+console.  The default is set to __true__ for the development environment.
+  * __options__ - These are the database options that will be passed directly to mongoose.connect in the __production__ environment: [server, replset, user, pass, auth, mongos] (http://mongoosejs.com/docs/connections.html#options) or read [this] (http://mongodb.github.io/node-mongodb-native/driver-articles/mongoclient.html#mongoclient-connect-options) for more information.
 * __app.name__ - This is the name of your app or website, and can be different for each environment. You can tell which environment you are running by looking at the TITLE attribute that your app generates.
 * __Social OAuth Keys__ - Facebook, GitHub, Google, Twitter. You can specify your own social application keys here for each platform:
   * __clientID__
   * __clientSecret__
   * __callbackURL__
+* __emailFrom__ - This is the from email address displayed when sending an email.
+* __mailer__ - This is where you enter your email service provider, username and password.
 
 To run with a different environment, just specify NODE_ENV as you call grunt:
 
@@ -127,6 +142,10 @@ To run with a different environment, just specify NODE_ENV as you call grunt:
 If you are using node instead of grunt, it is very similar:
 
     $ NODE_ENV=test node server
+
+To simply run tests
+
+    $ npm test
 
 > NOTE: Running Node.js applications in the __production__ environment enables caching, which is disabled by default in all other environments.
 
@@ -153,7 +172,7 @@ We pre-included an article example. Check out:
   * [The AngularJs Views Folder](packages/articles/public/views) - Where we keep our CRUD views.
 
 ## Heroku Quick Deployment
-Before you start make sure you have the [Heroku toolbelt](<https://toolbelt.heroku.com/")
+Before you start make sure you have the [Heroku toolbelt](https://toolbelt.heroku.com/)
 installed and an accessible MongoDB instance - you can try [MongoHQ](http://www.mongohq.com/)
 which has an easy setup).
 
